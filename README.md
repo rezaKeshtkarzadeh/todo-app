@@ -1,3 +1,5 @@
+Note: Notice that this app will have some issue or something won't match with AGENTS rule I wrote. This is my first app with AI/AGENTS, so this may have mentioned problems. Or maybe something in architecture of app is wrong or mismatch.
+
 # Todo App
 
 A security-conscious full-stack Todo application built with modern web technologies.
