@@ -12,6 +12,22 @@ Before implementing or modifying backend code, read `../AGENTS.md`.
 4. **Dependency Injection:** Use FastAPI's `Depends()` for passing database sessions, current users, device context, and services into routers. Do not instantiate services globally.
 5. **No Blind Exception Catching:** Never use bare `except:` or catch `Exception` blindly. Handle specific exceptions and map them to the defined API Error Contract.
 
+### Blocking and CPU-Bound Operations
+
+The application must not block the asyncio event loop.
+
+CPU-bound or potentially blocking operations such as:
+
+* Argon2 password/token hashing and verification;
+* Pillow image decoding and validation;
+* filesystem operations that may block;
+* other third-party synchronous operations;
+
+MUST NOT execute directly in the request event loop when they can block for a meaningful amount of time.
+
+Use an appropriate async-compatible mechanism such as `asyncio.to_thread()` / AnyIO thread offloading when required.
+
+Do not introduce synchronous database drivers or synchronous Redis clients as a workaround.
 ---
 
 ## 1. Stack
@@ -432,6 +448,23 @@ If the Session was revoked (for example by a revocation from another device), re
 
 Reuse detection follows section 10.
 
+### Refresh Token / Session / Device Binding
+
+A Refresh Token belongs to exactly one Session.
+
+A Session belongs to exactly one User and one Device.
+
+When processing a Refresh Token, the backend MUST verify that:
+
+* the Refresh Token belongs to the resolved Session;
+* the Session belongs to the expected User;
+* the Session's Device exists and is not revoked;
+* the device relationship is internally consistent.
+
+If `X-Device-Id` is supplied on the refresh request, it MUST match the Session's device ID.
+
+`X-Device-Id` remains a client-supplied identifier and MUST NOT be treated as an authentication factor.
+
 ---
 
 ## 19. `POST /auth/logout`
@@ -722,6 +755,22 @@ Phone number update + Audit Log
 
 Avoid unnecessarily long transactions. Redis operations are not a substitute for PostgreSQL transactions and cannot participate in them: order operations so a Redis failure cannot leave PostgreSQL inconsistent.
 
+### Transaction and External-State Ordering
+
+PostgreSQL is the authoritative source for persistent application state.
+
+Redis is used only for short-lived state such as OTPs, cooldowns, and temporary step-up tokens.
+
+A PostgreSQL transaction MUST NOT be assumed to include Redis operations.
+
+When an operation modifies both PostgreSQL and Redis:
+
+1. Perform PostgreSQL changes inside the appropriate database transaction.
+2. Perform Redis cleanup/update in an order that cannot leave PostgreSQL in an invalid or partially committed state.
+3. Do not report a successful operation if a required persistent PostgreSQL mutation failed.
+4. Redis cleanup failures must be handled explicitly and logged when relevant.
+5. Never attempt to emulate a distributed transaction between PostgreSQL and Redis.
+
 ---
 
 ## 33. CORS
@@ -767,10 +816,22 @@ Secrets must not be committed. `JWT_SECRET` must have sufficient entropy and mus
 
 ## 35. Redis Keys
 
+OTP state MUST be namespaced by purpose to prevent collisions between
+login and phone-change flows.
+
 ```text
-otp:{phone_number}
-otp_attempts:{phone_number}
-otp_cooldown:{phone_number}
+otp:login:{phone_number}
+otp_attempts:login:{phone_number}
+otp_cooldown:login:{phone_number}
+
+otp:phone_current:{user_id}
+otp_attempts:phone_current:{user_id}
+otp_cooldown:phone_current:{user_id}
+
+otp:phone_new:{user_id}
+otp_attempts:phone_new:{user_id}
+otp_cooldown:phone_new:{user_id}
+
 phone_change:{user_id}
 ```
 
@@ -841,3 +902,40 @@ Note: session and device management (API **and** UI) is explicitly **IN** scope.
   * CSRF: missing and mismatched header on every protected verb.
   * Global logout revokes the current session and clears cookies.
   * Every custom error code returns the expected HTTP status and JSON envelope.
+
+## 40. Local Infrastructure and Docker
+
+Docker is used only for local infrastructure dependencies.
+
+### Dockerized Services
+
+The following services MUST run through Docker during local development:
+
+* PostgreSQL
+* Redis
+
+The FastAPI application MUST run directly on the host development
+environment and MUST NOT be containerized unless explicitly requested.
+
+Docker MUST NOT be introduced for:
+
+* FastAPI/Uvicorn;
+* Alembic;
+* pytest;
+* frontend;
+* one-off development scripts.
+
+### Local Development Responsibilities
+
+Docker Compose should provide only the infrastructure services required by
+the backend:
+
+```text
+Docker
+├── PostgreSQL
+└── Redis
+
+Host Machine
+├── FastAPI / Uvicorn
+├── Alembic
+└── pytest

@@ -153,15 +153,10 @@ Each application may have its own environment, dependencies, and development too
 
 ```text
 Next.js Frontend
-        â”‚
-        â”‚ HTTPS / HTTP in development
-        â”‚
-        â–¼
+        HTTPS / HTTP in development
 FastAPI Backend
-        â”‚
-        â”œâ”€â”€ PostgreSQL
-        â”‚
-        â””â”€â”€ Redis
+        PostgreSQL
+        Redis
 ```
 
 The backend is authoritative for:
@@ -625,6 +620,14 @@ Do not add:
 
 Additional architecture should be introduced only when it solves a concrete problem in the current scope.
 
+### Docker and Local Infrastructure
+
+Docker Compose is allowed **only** for local PostgreSQL and Redis services.
+
+* PostgreSQL must use the latest stable PostgreSQL image available at implementation time.
+* Redis must use `redis:8.6.4-alpine`.
+* Docker Compose must never be used to run the backend, frontend, or any other application, service, or infrastructure component.
+* The backend and frontend must run directly using their respective development tooling.
 ---
 
 ## 18. Environment and Secrets
