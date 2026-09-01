@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from fastapi import Response
-from app.core.config import settings
+from .config import settings
 
 
 def _cookie_attrs(
