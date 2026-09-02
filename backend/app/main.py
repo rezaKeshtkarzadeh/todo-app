@@ -1,6 +1,6 @@
 import uuid
 import uvicorn
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,6 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.core.config import settings
 from app.core.errors import AppError, get_error_details
+from app.routers import auth
 
 
 app = FastAPI(
@@ -23,6 +24,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*", "X-CSRF-Token", "X-Device-Id"],
 )
+
+app.include_router(auth.router)
 
 
 @app.middleware("http")

@@ -7,7 +7,7 @@ from app.models.audit_log import AuditLog
 
 
 async def log_security_event(
-    db: AsyncSession,
+    db: Optional[AsyncSession],
     event_type: str,
     severity: str = "info",
     user_id: Optional[UUID] = None,
@@ -17,12 +17,15 @@ async def log_security_event(
     ip_address: Optional[str] = None,
     user_agent: Optional[str] = None,
     metadata: Optional[dict] = None,
-) -> SecurityLog:
+) -> Optional[SecurityLog]:
     """
     Record a security event.
     Participates in the caller's transaction - does not commit.
     Never accepts raw tokens, OTPs, or secrets.
     """
+    if db is None:
+        return None
+    
     log = SecurityLog(
         user_id=user_id,
         session_id=session_id,
@@ -39,19 +42,22 @@ async def log_security_event(
 
 
 async def log_audit_event(
-    db: AsyncSession,
+    db: Optional[AsyncSession],
     action: str,
     resource_type: str,
     user_id: Optional[UUID] = None,
     resource_id: Optional[UUID] = None,
     request_id: Optional[str] = None,
     metadata: Optional[dict] = None,
-) -> AuditLog:
+) -> Optional[AuditLog]:
     """
     Record an audit event.
     Participates in the caller's transaction - does not commit.
     Never accepts raw tokens, OTPs, or secrets.
     """
+    if db is None:
+        return None
+    
     log = AuditLog(
         user_id=user_id,
         action=action,
