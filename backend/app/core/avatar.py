@@ -10,7 +10,7 @@ class AvatarSettings(BaseSettings):
     )
 
     max_bytes: int = Field(default=5242880, alias="AVATAR_MAX_BYTES")
-    uploads_dir: str = Field(default="./uploads", alias="UPLOADS_DIR")
+    uploads_dir: str = Field(default="./backend/uploads", alias="UPLOADS_DIR")
 
     @computed_field
     @property

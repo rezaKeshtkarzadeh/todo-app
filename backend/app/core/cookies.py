@@ -56,8 +56,16 @@ def set_csrf_token_cookie(response: Response, token: str) -> None:
 
 
 def clear_all_auth_cookies(response: Response) -> None:
-    attrs = _cookie_attrs()
-    for key in ("access_token", "refresh_token", "csrf_token"):
+    # Use the same attributes as when setting the cookies
+    access_attrs = _cookie_attrs(httponly=True, samesite="lax")
+    refresh_attrs = _cookie_attrs(httponly=True, samesite="lax")
+    csrf_attrs = _cookie_attrs(httponly=False, samesite="lax")
+    
+    for key, attrs in [
+        ("access_token", access_attrs),
+        ("refresh_token", refresh_attrs),
+        ("csrf_token", csrf_attrs),
+    ]:
         response.delete_cookie(key=key, **attrs)
 
 

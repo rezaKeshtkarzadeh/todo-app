@@ -6,10 +6,10 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from sqlalchemy.exc import SQLAlchemyError
-
+from fastapi.staticfiles import StaticFiles
 from app.core.config import settings
 from app.core.errors import AppError, get_error_details
-from app.routers import auth
+from app.routers import auth, profile
 
 
 app = FastAPI(
@@ -26,6 +26,13 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(profile.router)
+
+app.mount(
+    "/uploads", 
+    StaticFiles(directory=settings.avatar.uploads_path), 
+    name="uploads"
+)
 
 
 @app.middleware("http")
@@ -122,22 +129,6 @@ async def unhandled_error_handler(request: Request, exc: Exception):
             }
         },
     )
-
-
-@app.get("/health")
-async def health_check() -> dict[str, str]:
-    return {"status": "ok"}
-
-
-@app.get("/test-error")
-async def test_error():
-    from app.core.errors import AppError
-    raise AppError("AUTH_INVALID_OTP", 401, "Test error")
-
-
-@app.post("/test-validation")
-async def test_validation(data: dict):
-    return {"received": data}
 
 if __name__ == "__main__":
     uvicorn.run(app="app.main:app", host="127.0.0.1", port=8000, reload=True)

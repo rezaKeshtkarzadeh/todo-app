@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Request, Response, Cookie
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, update
 import uuid
 from datetime import datetime, timezone, timedelta
 
@@ -237,3 +237,117 @@ async def refresh_token(
     await db.commit()
     
     return {"message": "Token refreshed successfully."}
+
+
+@router.get("/csrf-token")
+async def get_csrf_token(
+    response: Response,
+):
+    """
+    Generate a new CSRF token and set the csrf_token cookie.
+    Does not require authentication.
+    """
+    csrf_token = generate_csrf_token()
+    set_csrf_token_cookie(response, csrf_token)
+    return {"message": "CSRF token generated."}
+
+
+@router.post("/logout")
+async def logout(
+    request: Request,
+    response: Response,
+    refresh_token: str | None = Cookie(default=None, alias="refresh_token"),
+    _csrf: None = Depends(validate_csrf),
+    db: AsyncSession = Depends(get_db_session),
+):
+    """
+    Logout the current session.
+    Requires CSRF. Identifies current session from refresh token context.
+    Revokes session and its active refresh token family.
+    Clears all auth cookies.
+    Idempotent: always returns success shape even if no session existed.
+    """
+    session_id = None
+    user_id = None
+    device_id = None
+    rt = None
+    
+    # Try to identify session from refresh token if present
+    if refresh_token:
+        from app.core.security import decode_refresh_token
+        parsed = decode_refresh_token(refresh_token)
+        if parsed:
+            token_id, _ = parsed
+            # Look up the refresh token to find session
+            result = await db.execute(
+                select(RefreshToken).where(RefreshToken.id == uuid.UUID(token_id))
+            )
+            rt = result.scalar_one_or_none()
+            if rt:
+                session_id = rt.session_id
+                # Load session to get user_id and device_id
+                result = await db.execute(
+                    select(Session).where(Session.id == session_id)
+                )
+                session = result.scalar_one_or_none()
+                if session:
+                    user_id = session.user_id
+                    device_id = session.device_id
+    
+    # If we found a session, revoke it and its token family
+    if session_id:
+        # Revoke the session
+        result = await db.execute(
+            select(Session).where(Session.id == session_id)
+        )
+        session = result.scalar_one_or_none()
+        if session and session.revoked_at is None:
+            session.revoked_at = datetime.now(timezone.utc).replace(tzinfo=None)
+            session.revoke_reason = "logout"
+        
+        # Revoke all tokens in the same family
+        if rt and rt.token_family_id:
+            stmt = (
+                update(RefreshToken)
+                .where(
+                    RefreshToken.token_family_id == rt.token_family_id,
+                    RefreshToken.revoked_at.is_(None),
+                )
+                .values(revoked_at=datetime.now(timezone.utc).replace(tzinfo=None))
+            )
+            await db.execute(stmt)
+        
+        # Log session revocation
+        await log_security_event(
+            db=db,
+            event_type="SESSION_REVOKED",
+            severity="info",
+            user_id=user_id,
+            session_id=session_id,
+            device_id=device_id,
+            request_id=getattr(request.state, "request_id", None),
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
+            metadata={"scope": "logout", "token_family_id": str(rt.token_family_id) if rt else None},
+        )
+        
+        # Log logout event
+        await log_security_event(
+            db=db,
+            event_type="LOGOUT",
+            severity="info",
+            user_id=user_id,
+            session_id=session_id,
+            device_id=device_id,
+            request_id=getattr(request.state, "request_id", None),
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
+            metadata={"phone": None},
+        )
+    
+    # Clear all auth cookies (always, even if no session was found)
+    clear_all_auth_cookies(response)
+    
+    await db.commit()
+    
+    return {"message": "Logged out successfully."}

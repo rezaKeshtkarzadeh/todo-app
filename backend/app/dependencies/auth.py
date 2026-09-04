@@ -45,7 +45,7 @@ async def get_current_user(
     # Load session and verify it's not revoked/expired
     result = await db.execute(select(Session).where(Session.id == UUID(session_id)))
     session = result.scalar_one_or_none()
-    if not session or session.revoked_at is not None or session.expires_at < datetime.now(timezone.utc):
+    if not session or session.revoked_at is not None or session.expires_at < datetime.now(timezone.utc).replace(tzinfo=None):
         raise AppError("AUTH_SESSION_REVOKED", 401, "Session has been revoked.")
 
     return CurrentUser(user=user, session_id=UUID(session_id))
