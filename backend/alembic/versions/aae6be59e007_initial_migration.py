@@ -1,8 +1,8 @@
 """initial migration
 
-Revision ID: fbc4b7975eff
+Revision ID: aae6be59e007
 Revises: 
-Create Date: 2026-08-31 23:08:17.231532
+Create Date: 2026-09-04 19:20:07.681739
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'fbc4b7975eff'
+revision: str = 'aae6be59e007'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -37,7 +37,7 @@ def upgrade() -> None:
     sa.Column('resource_type', sa.String(length=64), nullable=False),
     sa.Column('resource_id', sa.UUID(), nullable=True),
     sa.Column('request_id', sa.String(length=64), nullable=True),
-    sa.Column('metadata', sa.JSON(), nullable=True),
+    sa.Column('change_data', sa.JSON(), nullable=True),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id')
@@ -48,6 +48,7 @@ def upgrade() -> None:
     op.create_index('ix_audit_logs_user_id', 'audit_logs', ['user_id'], unique=False)
     op.create_table('devices',
     sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('device_id', sa.UUID(), nullable=False),
     sa.Column('user_id', sa.UUID(), nullable=False),
     sa.Column('name', sa.String(length=128), nullable=True),
     sa.Column('user_agent', sa.String(length=512), nullable=True),
@@ -55,10 +56,11 @@ def upgrade() -> None:
     sa.Column('last_seen_at', sa.DateTime(), nullable=True),
     sa.Column('revoked_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('device_id', 'user_id', name='uq_device_user')
     )
+    op.create_index('ix_devices_device_id', 'devices', ['device_id'], unique=False)
     op.create_index('ix_devices_user_id', 'devices', ['user_id'], unique=False)
-    op.create_index('ix_devices_user_id_id', 'devices', ['user_id', 'id'], unique=True)
     op.create_table('tasks',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('user_id', sa.UUID(), nullable=False),
@@ -97,7 +99,7 @@ def upgrade() -> None:
     sa.Column('used_at', sa.DateTime(), nullable=True),
     sa.Column('revoked_at', sa.DateTime(), nullable=True),
     sa.Column('replaced_by_id', sa.UUID(), nullable=True),
-    sa.ForeignKeyConstraint(['replaced_by_id'], ['refresh_tokens.id'], ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['replaced_by_id'], ['refresh_tokens.id'], ),
     sa.ForeignKeyConstraint(['session_id'], ['sessions.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
@@ -114,7 +116,7 @@ def upgrade() -> None:
     sa.Column('request_id', sa.String(length=64), nullable=True),
     sa.Column('ip_address', sa.String(length=45), nullable=True),
     sa.Column('user_agent', sa.String(length=512), nullable=True),
-    sa.Column('metadata', sa.JSON(), nullable=True),
+    sa.Column('log_metadata', sa.JSON(), nullable=True),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['device_id'], ['devices.id'], ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['session_id'], ['sessions.id'], ondelete='SET NULL'),
@@ -148,8 +150,8 @@ def downgrade() -> None:
     op.drop_table('sessions')
     op.drop_index('ix_tasks_user_id', table_name='tasks')
     op.drop_table('tasks')
-    op.drop_index('ix_devices_user_id_id', table_name='devices')
     op.drop_index('ix_devices_user_id', table_name='devices')
+    op.drop_index('ix_devices_device_id', table_name='devices')
     op.drop_table('devices')
     op.drop_index('ix_audit_logs_user_id', table_name='audit_logs')
     op.drop_index('ix_audit_logs_resource_type', table_name='audit_logs')

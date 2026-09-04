@@ -33,8 +33,10 @@ def decode_access_token(token: str) -> dict[str, Any]:
         raise ValueError("Invalid token") from e
 
 
+import uuid
+
 def generate_refresh_token() -> tuple[str, str]:
-    token_id = secrets.token_urlsafe(32)
+    token_id = str(uuid.uuid4())
     secret = secrets.token_urlsafe(32)
     return token_id, secret
 
