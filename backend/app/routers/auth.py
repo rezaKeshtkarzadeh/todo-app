@@ -27,6 +27,8 @@ from app.services.otp_service import (
     delete_otp,
 )
 from app.services.auth_service import rotate_refresh_token, handle_refresh_token_reuse
+from app.services.session_cache import SessionCache
+from app.core.redis_client import get_redis_client
 from app.core.config import settings
 from app.models.user import User
 from app.models.device import Device
@@ -34,11 +36,18 @@ from app.models.session import Session
 from app.models.refresh_token import RefreshToken
 from app.dependencies.device import get_device_id
 from app.dependencies.csrf import validate_csrf
+from app.dependencies.rate_limit import create_rate_limit_dependency
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+# Rate limit dependencies
+rate_limit_send_otp = create_rate_limit_dependency("auth:send-otp")
+rate_limit_verify_otp = create_rate_limit_dependency("auth:verify-otp")
+rate_limit_refresh = create_rate_limit_dependency("auth:refresh")
+rate_limit_logout = create_rate_limit_dependency("auth:logout")
 
-@router.post("/send-otp", response_model=SendOtpResponse)
+
+@router.post("/send-otp", response_model=SendOtpResponse, dependencies=[Depends(rate_limit_send_otp)])
 async def send_otp(
     request: Request,
     payload: SendOtpRequest,
@@ -82,7 +91,7 @@ async def send_otp(
     return response
 
 
-@router.post("/verify-otp", response_model=VerifyOtpResponse)
+@router.post("/verify-otp", response_model=VerifyOtpResponse, dependencies=[Depends(rate_limit_verify_otp)])
 async def verify_otp_endpoint(
     request: Request,
     response: Response,
@@ -202,6 +211,17 @@ async def verify_otp_endpoint(
     set_refresh_token_cookie(response, refresh_token_str)
     set_csrf_token_cookie(response, csrf_token)
     
+    # Cache session in Redis
+    redis = get_redis_client()
+    session_cache = SessionCache(redis)
+    await session_cache.set_session(
+        session=session,
+        user=user,
+        access_token=access_token,
+        refresh_token=refresh_token_str,
+        csrf_token=csrf_token,
+    )
+    
     # Log LOGIN_SUCCESS
     await log_security_event(
         db=db,
@@ -222,7 +242,7 @@ async def verify_otp_endpoint(
     return VerifyOtpResponse(message="OTP verified successfully.")
 
 
-@router.post("/refresh")
+@router.post("/refresh", dependencies=[Depends(rate_limit_refresh)])
 async def refresh_token(
     request: Request,
     response: Response,
@@ -252,7 +272,7 @@ async def get_csrf_token(
     return {"message": "CSRF token generated."}
 
 
-@router.post("/logout")
+@router.post("/logout", dependencies=[Depends(rate_limit_logout)])
 async def logout(
     request: Request,
     response: Response,
@@ -316,6 +336,11 @@ async def logout(
                 .values(revoked_at=datetime.now(timezone.utc).replace(tzinfo=None))
             )
             await db.execute(stmt)
+        
+        # Invalidate Redis cache
+        redis = get_redis_client()
+        session_cache = SessionCache(redis)
+        await session_cache.revoke_session(session_id)
         
         # Log session revocation
         await log_security_event(

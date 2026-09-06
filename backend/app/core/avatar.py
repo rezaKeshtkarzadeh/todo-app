@@ -1,16 +1,10 @@
 from pathlib import Path
 from pydantic import Field, computed_field
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from .base_settings import BaseAppSettings
 
-
-class AvatarSettings(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        extra="ignore",
-    )
-
-    max_bytes: int = Field(default=5242880, alias="AVATAR_MAX_BYTES")
-    uploads_dir: str = Field(default="./backend/uploads", alias="UPLOADS_DIR")
+class AvatarSettings(BaseAppSettings):
+    max_bytes: int = Field(alias="AVATAR_MAX_BYTES")
+    uploads_dir: str = Field(alias="UPLOADS_DIR")
 
     @computed_field
     @property

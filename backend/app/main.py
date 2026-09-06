@@ -41,6 +41,12 @@ async def request_id_middleware(request: Request, call_next):
     request.state.request_id = request_id
     response = await call_next(request)
     response.headers["X-Request-ID"] = request_id
+    
+    # Add rate limit headers if present
+    if hasattr(request.state, "rate_limit_headers"):
+        for header, value in request.state.rate_limit_headers.items():
+            response.headers[header] = value
+    
     return response
 
 
@@ -129,6 +135,13 @@ async def unhandled_error_handler(request: Request, exc: Exception):
             }
         },
     )
+
+@app.get('/')
+async def check_root():
+    return {
+        "secret": settings.app.name,
+        "algorithm": settings.jwt.algorithm
+    }
 
 if __name__ == "__main__":
     uvicorn.run(app="app.main:app", host="127.0.0.1", port=8000, reload=True)

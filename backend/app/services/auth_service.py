@@ -19,7 +19,11 @@ from app.core.cookies import set_access_token_cookie, set_refresh_token_cookie, 
 from app.models.session import Session
 from app.models.refresh_token import RefreshToken
 from app.models.device import Device
+from app.models.user import User
 from app.services.logging_service import log_security_event
+from app.services.session_cache import SessionCache
+from app.services.refresh_lock import RefreshLock
+from app.core.redis_client import get_redis_client
 
 
 async def rotate_refresh_token(
@@ -35,14 +39,17 @@ async def rotate_refresh_token(
     3. Validate Session (exists, not revoked, not expired)
     4. Validate token expiration/revocation/usage
     5. Argon2 verify secret against token_hash
-    6. Atomically consume current token (UPDATE ... WHERE used_at IS NULL AND revoked_at IS NULL)
-    7. If rowcount == 0 → treat as reuse (call handle_reuse)
-    8. Create replacement RefreshToken (same session_id, same token_family_id)
-    9. Set old token's replaced_by_id
-    10. Issue new Access Token
-    11. Update sessions.last_used_at and devices.last_seen_at
+    6. Acquire Redis refresh lock for concurrency control
+    7. Atomically consume current token (UPDATE ... WHERE used_at IS NULL AND revoked_at IS NULL)
+    8. If rowcount == 0 → treat as reuse (call handle_reuse)
+    9. Create replacement RefreshToken (same session_id, same token_family_id)
+    10. Set old token's replaced_by_id
+    11. Issue new Access Token
+    12. Update sessions.last_used_at and devices.last_seen_at
     12. Set replacement cookies
-    13. Write REFRESH_SUCCESS Security Log
+    13. Update Redis cache
+    14. Release Redis refresh lock
+    15. Write REFRESH_SUCCESS Security Log
     """
     # Parse token_id.secret from cookie
     parsed = decode_refresh_token(refresh_token_cookie)
@@ -91,80 +98,101 @@ async def rotate_refresh_token(
     if not verify_refresh_token(refresh_token.token_hash, secret):
         raise AppError("AUTH_REFRESH_FAILED", 401, "Invalid refresh token.")
     
-    # Atomically consume current token
-    # UPDATE refresh_tokens SET used_at = now() WHERE id = :id AND used_at IS NULL AND revoked_at IS NULL
-    stmt = (
-        update(RefreshToken)
-        .where(
-            RefreshToken.id == refresh_token.id,
-            RefreshToken.used_at.is_(None),
-            RefreshToken.revoked_at.is_(None),
+    # Acquire Redis refresh lock for concurrency control
+    redis = get_redis_client()
+    refresh_lock = RefreshLock(redis)
+    lock_acquired = await refresh_lock.acquire(str(session.id))
+    if not lock_acquired:
+        raise AppError("AUTH_REFRESH_FAILED", 409, "Concurrent refresh detected. Please try again.")
+    
+    try:
+        # Atomically consume current token
+        # UPDATE refresh_tokens SET used_at = now() WHERE id = :id AND used_at IS NULL AND revoked_at IS NULL
+        stmt = (
+            update(RefreshToken)
+            .where(
+                RefreshToken.id == refresh_token.id,
+                RefreshToken.used_at.is_(None),
+                RefreshToken.revoked_at.is_(None),
+            )
+            .values(used_at=datetime.now(timezone.utc).replace(tzinfo=None))
+            .execution_options(synchronize_session="fetch")
         )
-        .values(used_at=datetime.now(timezone.utc).replace(tzinfo=None))
-        .execution_options(synchronize_session="fetch")
-    )
-    result = cast(CursorResult, await db.execute(stmt))
-    
-    if result.rowcount == 0:
-        # Another request already consumed this token - reuse detected
-        await handle_refresh_token_reuse(db, request, response, refresh_token)
-        return
-    
-    # Create replacement RefreshToken
-    new_token_id, new_secret = generate_refresh_token()
-    new_token_hash = hash_refresh_token(new_secret)
-    
-    replacement_token = RefreshToken(
-        id=uuid.UUID(new_token_id),
-        session_id=session.id,
-        token_family_id=refresh_token.token_family_id,
-        token_hash=new_token_hash,
-        expires_at=refresh_token.expires_at,
-    )
-    db.add(replacement_token)
-    
-    # Flush the new token first so it exists in the database
-    await db.flush()
-    
-    # Set old token's replaced_by_id (now the new token exists in DB)
-    refresh_token.replaced_by_id = uuid.UUID(new_token_id)
-    
-    # Issue new Access Token
-    access_token = create_access_token(str(session.user_id), str(session.id))
-    
-    # Update timestamps
-    session.last_used_at = datetime.now(timezone.utc).replace(tzinfo=None)
-    
-    # Update device last_seen_at
-    result = await db.execute(
-        select(Device).where(Device.id == session.device_id)
-    )
-    device = result.scalar_one_or_none()
-    if device:
-        device.last_seen_at = datetime.now(timezone.utc).replace(tzinfo=None)
-    
-    # Set replacement cookies
-    set_access_token_cookie(response, access_token)
-    new_refresh_token_str = encode_refresh_token(new_token_id, new_secret)
-    set_refresh_token_cookie(response, new_refresh_token_str)
-    
-    # Generate and set new CSRF token
-    new_csrf_token = generate_csrf_token()
-    set_csrf_token_cookie(response, new_csrf_token)
-    
-    # Write REFRESH_SUCCESS Security Log
-    await log_security_event(
-        db=db,
-        event_type="REFRESH_SUCCESS",
-        severity="info",
-        user_id=session.user_id,
-        session_id=session.id,
-        device_id=session.device_id,
-        request_id=getattr(request.state, "request_id", None),
-        ip_address=request.client.host if request.client else None,
-        user_agent=request.headers.get("user-agent"),
-        metadata={"token_family_id": str(refresh_token.token_family_id)},
-    )
+        result = cast(CursorResult, await db.execute(stmt))
+        
+        if result.rowcount == 0:
+            # Another request already consumed this token - reuse detected
+            await handle_refresh_token_reuse(db, request, response, refresh_token)
+            return
+        
+        # Create replacement RefreshToken
+        new_token_id, new_secret = generate_refresh_token()
+        new_token_hash = hash_refresh_token(new_secret)
+        
+        replacement_token = RefreshToken(
+            id=uuid.UUID(new_token_id),
+            session_id=session.id,
+            token_family_id=refresh_token.token_family_id,
+            token_hash=new_token_hash,
+            expires_at=refresh_token.expires_at,
+        )
+        db.add(replacement_token)
+        
+        # Flush the new token first so it exists in the database
+        await db.flush()
+        
+        # Set old token's replaced_by_id (now the new token exists in DB)
+        refresh_token.replaced_by_id = uuid.UUID(new_token_id)
+        
+        # Issue new Access Token
+        access_token = create_access_token(str(session.user_id), str(session.id))
+        
+        # Update timestamps
+        session.last_used_at = datetime.now(timezone.utc).replace(tzinfo=None)
+        
+        # Update device last_seen_at
+        result = await db.execute(
+            select(Device).where(Device.id == session.device_id)
+        )
+        device = result.scalar_one_or_none()
+        if device:
+            device.last_seen_at = datetime.now(timezone.utc).replace(tzinfo=None)
+        
+        # Set replacement cookies
+        set_access_token_cookie(response, access_token)
+        new_refresh_token_str = encode_refresh_token(new_token_id, new_secret)
+        set_refresh_token_cookie(response, new_refresh_token_str)
+        
+        # Generate and set new CSRF token
+        new_csrf_token = generate_csrf_token()
+        set_csrf_token_cookie(response, new_csrf_token)
+        
+        # Update Redis cache
+        redis = get_redis_client()
+        session_cache = SessionCache(redis)
+        await session_cache.update_tokens(
+            session_id=session.id,
+            access_token=access_token,
+            refresh_token=new_refresh_token_str,
+            csrf_token=new_csrf_token,
+        )
+        
+        # Write REFRESH_SUCCESS Security Log
+        await log_security_event(
+            db=db,
+            event_type="REFRESH_SUCCESS",
+            severity="info",
+            user_id=session.user_id,
+            session_id=session.id,
+            device_id=session.device_id,
+            request_id=getattr(request.state, "request_id", None),
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
+            metadata={"token_family_id": str(refresh_token.token_family_id)},
+        )
+    finally:
+        # Always release the refresh lock
+        await refresh_lock.release(str(session.id))
 
 
 async def handle_refresh_token_reuse(

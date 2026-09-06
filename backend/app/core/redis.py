@@ -1,17 +1,12 @@
 from pydantic import Field, computed_field
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from .base_settings import BaseAppSettings
 
 
-class RedisSettings(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        extra="ignore",
-    )
-
-    host: str = Field(default="localhost", alias="REDIS_HOST")
-    port: int = Field(default=6379, alias="REDIS_PORT")
-    db: int = Field(default=0, alias="REDIS_DB")
-    password: str = Field(default="", alias="REDIS_PASSWORD")
+class RedisSettings(BaseAppSettings):
+    host: str = Field(alias="REDIS_HOST")
+    port: int = Field(alias="REDIS_PORT")
+    db: int = Field(alias="REDIS_DB")
+    password: str = Field(alias="REDIS_PASSWORD")
 
     @computed_field
     @property

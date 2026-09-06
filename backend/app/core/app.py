@@ -1,18 +1,13 @@
 from pydantic import Field
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from .base_settings import BaseAppSettings
 
 
-class AppSettings(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        extra="ignore",
-    )
-
-    name: str = Field(default="Todo App", alias="APP_NAME")
-    env: str = Field(default="development", alias="ENV")
-    debug: bool = Field(default=True, alias="DEBUG")
-    host: str = Field(default="0.0.0.0", alias="HOST")
-    port: int = Field(default=8000, alias="PORT")
+class AppSettings(BaseAppSettings):
+    name: str = Field(alias="APP_NAME")
+    env: str = Field(alias="ENV")
+    debug: bool = Field(alias="DEBUG")
+    host: str = Field(alias="HOST")
+    port: int = Field(alias="PORT")
 
     @property
     def is_production(self) -> bool:
