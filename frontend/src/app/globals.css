@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
+  --font-roboto: var(--font-roboto);
+  --font-vazir: var(--font-vazir);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -46,6 +46,29 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("/fonts/roboto.woff2") format("woff2");
+  font-display: swap;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Vazir";
+  src: url("/fonts/vazir.woff2") format("woff2");
+  font-display: swap;
+  font-weight: 400;
+}
+
+@layer utilities {
+  .font-roboto {
+    font-family: "Roboto", sans-serif;
+  }
+  .font-vazir {
+    font-family: "Vazir", sans-serif;
+  }
 }
 
 :root {
