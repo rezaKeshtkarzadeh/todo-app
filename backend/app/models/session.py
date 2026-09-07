@@ -32,7 +32,7 @@ class Session(Base):
     revoke_reason: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
     user: Mapped["User"] = relationship("User", backref="sessions")
-    device: Mapped["Device"] = relationship("Device", backref="sessions")
+    device: Mapped["Device"] = relationship("Device", back_populates="sessions")
 
     __table_args__ = (
         Index("ix_sessions_user_id", "user_id"),

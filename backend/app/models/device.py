@@ -29,6 +29,7 @@ class Device(Base):
     revoked_at: Mapped[datetime | None] = mapped_column(nullable=True)
 
     user: Mapped["User"] = relationship("User", backref="devices")
+    sessions: Mapped[list["Session"]] = relationship("Session", back_populates="device")
 
     __table_args__ = (
         UniqueConstraint("device_id", "user_id", name="uq_device_user"),

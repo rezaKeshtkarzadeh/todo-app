@@ -9,7 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from fastapi.staticfiles import StaticFiles
 from app.core.config import settings
 from app.core.errors import AppError, get_error_details
-from app.routers import auth, profile
+from app.routers import auth, profile, security
 
 
 app = FastAPI(
@@ -27,6 +27,7 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(profile.router)
+app.include_router(security.router)
 
 app.mount(
     "/uploads", 
