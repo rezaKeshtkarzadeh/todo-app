@@ -1,0 +1,58 @@
+{
+  "common": {
+    "appName": "Todo App",
+    "loading": "Loading...",
+    "error": "Error",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "close": "Close"
+  },
+  "auth": {
+    "phoneNumber": "Phone Number",
+    "sendCode": "Send Code",
+    "otpCode": "OTP Code",
+    "verify": "Verify",
+    "resendIn": "Resend in {{seconds}}s",
+    "invalidOtp": "Invalid OTP",
+    "otpExpired": "OTP Expired",
+    "maxAttempts": "Maximum attempts reached. Please request a new code.",
+    "rateLimited": "Too many requests. Please wait."
+  },
+  "tasks": {
+    "title": "Tasks",
+    "addTask": "Add Task",
+    "taskTitle": "Task Title",
+    "noTasks": "No tasks yet",
+    "markComplete": "Mark Complete",
+    "markIncomplete": "Mark Incomplete"
+  },
+  "profile": {
+    "title": "Profile",
+    "avatar": "Profile Picture",
+    "changeAvatar": "Change Avatar",
+    "phoneNumber": "Phone Number",
+    "changePhone": "Change Phone Number"
+  },
+  "settings": {
+    "title": "Settings",
+    "theme": "Theme",
+    "language": "Language",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "security": {
+    "title": "Security",
+    "devices": "Devices",
+    "sessions": "Sessions",
+    "revokeSession": "Revoke Session",
+    "revokeAllSessions": "Revoke All Sessions",
+    "revokeDeviceSessions": "Revoke All Device Sessions",
+    "currentSession": "Current Session",
+    "globalLogout": "Global Logout",
+    "globalLogoutDescription": "This will log you out of all devices, including this one."
+  }
+}

@@ -13,8 +13,8 @@ from app.routers import auth, profile, security, tasks
 
 
 app = FastAPI(
-    title="Todo App API",
-    version="0.1.0",
+    title=settings.app.name,
+    version=settings.app.version,
 )
 
 app.add_middleware(

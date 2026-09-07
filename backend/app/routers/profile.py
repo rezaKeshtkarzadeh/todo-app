@@ -45,7 +45,7 @@ from app.services.otp_service import (
     delete_phone_change_token,
 )
 
-router = APIRouter(prefix="/profile", tags=["profile"])
+router = APIRouter(prefix="/profile", tags=["Profile"])
 
 rate_limit_avatar = create_rate_limit_dependency("profile:avatar")
 rate_limit_phone_current = create_rate_limit_dependency("profile:phone:current")

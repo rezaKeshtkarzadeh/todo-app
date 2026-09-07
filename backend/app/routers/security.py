@@ -1,8 +1,7 @@
-from fastapi import APIRouter, Depends, Request, Response, Cookie
+from fastapi import APIRouter, Depends, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
+from sqlalchemy import select
 from uuid import UUID
-from datetime import datetime, timezone
 from typing import List
 
 from app.core.errors import AppError
@@ -13,8 +12,6 @@ from app.schemas.security import (
     RevokeDeviceSessionsResponse,
     RevokeAllSessionsResponse,
 )
-from app.models.session import Session
-from app.models.refresh_token import RefreshToken
 from app.models.device import Device
 from app.dependencies.auth import get_current_user
 from app.dependencies.csrf import validate_csrf
@@ -25,10 +22,9 @@ from app.services.session_service import (
     get_user_devices_with_sessions,
 )
 from app.core.cookies import clear_all_auth_cookies
-from app.services.logging_service import log_security_event
 
 
-router = APIRouter(prefix="/security", tags=["security"])
+router = APIRouter(prefix="/security", tags=["Security"])
 
 
 @router.get("/devices", response_model=List[DeviceWithSessions])

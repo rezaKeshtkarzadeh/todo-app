@@ -17,7 +17,7 @@ from app.services.task_service import (
 )
 
 
-router = APIRouter(prefix="/tasks", tags=["tasks"])
+router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
 
 @router.get("", response_model=list[TaskRead])

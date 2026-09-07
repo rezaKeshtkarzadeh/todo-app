@@ -8,6 +8,7 @@ class AppSettings(BaseAppSettings):
     debug: bool = Field(alias="DEBUG")
     host: str = Field(alias="HOST")
     port: int = Field(alias="PORT")
+    version: str = Field(alias="VERSION")
 
     @property
     def is_production(self) -> bool:

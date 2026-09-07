@@ -1,0 +1,58 @@
+{
+  "common": {
+    "appName": "برنامه کارها",
+    "loading": "در حال بارگذاری...",
+    "error": "خطا",
+    "save": "ذخیره",
+    "cancel": "انصراف",
+    "delete": "حذف",
+    "edit": "ویرایش",
+    "confirm": "تایید",
+    "close": "بستن"
+  },
+  "auth": {
+    "phoneNumber": "شماره تلفن",
+    "sendCode": "ارسال کد",
+    "otpCode": "کد یکبار مصرف",
+    "verify": "تایید",
+    "resendIn": "ارسال مجدد در {{seconds}} ثانیه",
+    "invalidOtp": "کد یکبار مصرف نامعتبر",
+    "otpExpired": "کد یکبار مصرف منقضی شده",
+    "maxAttempts": "حداکثر تعداد تلاش‌ها رسیده است. لطفاً کد جدید درخواست کنید.",
+    "rateLimited": "بازدیدهای زیاد. لطفاً صبر کنید."
+  },
+  "tasks": {
+    "title": "کارها",
+    "addTask": "افزودن کار",
+    "taskTitle": "عنوان کار",
+    "noTasks": "هنوز کاری وجود ندارد",
+    "markComplete": "تکمیل شده",
+    "markIncomplete": "تکمیل نشده"
+  },
+  "profile": {
+    "title": "پروفایل",
+    "avatar": "تصویر پروفایل",
+    "changeAvatar": "تغییر عکس",
+    "phoneNumber": "شماره تلفن",
+    "changePhone": "تغییر شماره تلفن"
+  },
+  "settings": {
+    "title": "تنظیمات",
+    "theme": "تم",
+    "language": "زبان",
+    "light": "روشن",
+    "dark": "تیره",
+    "system": "سیستم"
+  },
+  "security": {
+    "title": "امنیت",
+    "devices": "دستگاه‌ها",
+    "sessions": "نشست‌ها",
+    "revokeSession": "انقضای نشست",
+    "revokeAllSessions": "انقضای تمام نشست‌ها",
+    "revokeDeviceSessions": "انقضای نشست‌های دستگاه",
+    "currentSession": "نشست جاری",
+    "globalLogout": "خروج کامل",
+    "globalLogoutDescription": "این کار شما را از تمام دستگاه‌ها، از جمله این دستگاه، خارج می‌کند."
+  }
+}

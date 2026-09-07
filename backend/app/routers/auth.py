@@ -38,7 +38,7 @@ from app.dependencies.device import get_device_id
 from app.dependencies.csrf import validate_csrf
 from app.dependencies.rate_limit import create_rate_limit_dependency
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 # Rate limit dependencies
 rate_limit_send_otp = create_rate_limit_dependency("auth:send-otp")
