@@ -8,7 +8,10 @@
     "delete": "Delete",
     "edit": "Edit",
     "confirm": "Confirm",
-    "close": "Close"
+    "close": "Close",
+    "otpDebug": "OTP (dev): {{code}}",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "auth": {
     "phoneNumber": "Phone Number",
@@ -19,7 +22,13 @@
     "invalidOtp": "Invalid OTP",
     "otpExpired": "OTP Expired",
     "maxAttempts": "Maximum attempts reached. Please request a new code.",
-    "rateLimited": "Too many requests. Please wait."
+    "rateLimited": "Too many requests. Please wait.",
+    "signInToContinue": "Sign in to continue",
+    "codeSentTo": "Code sent to {{phone}}",
+    "phoneTooShort": "Phone number is too short",
+    "phoneTooLong": "Phone number is too long",
+    "otpLength": "OTP must be 4 digits",
+    "otpDigits": "OTP must contain only digits"
   },
   "tasks": {
     "title": "Tasks",
