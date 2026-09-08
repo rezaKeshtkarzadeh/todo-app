@@ -49,8 +49,13 @@
     "title": "Profile",
     "avatar": "Profile Picture",
     "changeAvatar": "Change Avatar",
+    "removeAvatar": "Remove",
+    "noAvatar": "No avatar set",
     "phoneNumber": "Phone Number",
-    "changePhone": "Change Phone Number"
+    "changePhone": "Change Phone Number",
+    "avatarInvalidType": "Invalid file type. Only JPEG, PNG, and WebP are allowed.",
+    "avatarTooLarge": "File too large. Maximum size is 5 MB.",
+    "uploading": "Uploading... {{progress}}%"
   },
   "settings": {
     "title": "Settings",

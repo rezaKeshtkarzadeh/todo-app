@@ -49,8 +49,13 @@
     "title": "پروفایل",
     "avatar": "تصویر پروفایل",
     "changeAvatar": "تغییر عکس",
+    "removeAvatar": "حذف",
+    "noAvatar": "هیچ عکسی تنظیم نشده",
     "phoneNumber": "شماره تلفن",
-    "changePhone": "تغییر شماره تلفن"
+    "changePhone": "تغییر شماره تلفن",
+    "avatarInvalidType": "نوع فایل نامعتبر. فقط JPEG، PNG و WebP مجاز هستند.",
+    "avatarTooLarge": "فایل خیلی بزرگ است. حداکثر اندازه ۵ مگابایت.",
+    "uploading": "در حال آپلود... {{progress}}%"
   },
   "settings": {
     "title": "تنظیمات",

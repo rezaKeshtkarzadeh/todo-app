@@ -2,12 +2,14 @@
 
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AvatarUploader } from "@/components/profile/AvatarUploader";
+import { Separator } from "@/components/ui/separator";
 
 export function ProfileContent() {
   const t = useTranslations();
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto py-8 px-4 max-w-2xl">
       <h1 className="text-3xl font-bold mb-6">{t("profile.title")}</h1>
 
       <Card>
@@ -15,9 +17,7 @@ export function ProfileContent() {
           <CardTitle>{t("profile.avatar")}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground text-center py-8">
-            {t("profile.changeAvatar")} - Coming in Phase 25
-          </p>
+          <AvatarUploader />
         </CardContent>
       </Card>
 
