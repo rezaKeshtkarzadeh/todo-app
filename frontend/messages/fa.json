@@ -36,7 +36,14 @@
     "taskTitle": "عنوان کار",
     "noTasks": "هنوز کاری وجود ندارد",
     "markComplete": "تکمیل شده",
-    "markIncomplete": "تکمیل نشده"
+    "markIncomplete": "تکمیل نشده",
+    "titleRequired": "عنوان کار الزامی است",
+    "titleTooLong": "عنوان کار خیلی طولانی است (حداکثر ۲۰۰ کاراکتر)",
+    "confirmDelete": "حذف کار",
+    "deleteDescription": "آیا مطمئن هستید که می‌خواهید «{{title}}» را حذف کنید؟ این کار قابل بازگشت نیست.",
+    "editTask": "ویرایش کار",
+    "editDescription": "عنوان کار را به‌روزرسانی کنید",
+    "loadError": "بارگذاری کارها ناموفق بود"
   },
   "profile": {
     "title": "پروفایل",
@@ -51,7 +58,9 @@
     "language": "زبان",
     "light": "روشن",
     "dark": "تیره",
-    "system": "سیستم"
+    "system": "سیستم",
+    "english": "انگلیسی",
+    "persian": "فارسی"
   },
   "security": {
     "title": "امنیت",

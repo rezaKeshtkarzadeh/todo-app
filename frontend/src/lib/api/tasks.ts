@@ -1,6 +1,8 @@
 import { apiClient } from "../api-client";
 import type { Task } from "../types";
 
+export type { Task };
+
 export interface CreateTaskRequest {
   title: string;
 }

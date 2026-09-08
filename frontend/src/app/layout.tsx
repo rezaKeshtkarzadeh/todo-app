@@ -66,7 +66,7 @@ export default async function RootLayout({
             <IntlProvider locale={locale} messages={messages}>
               <AppInit>
                 <AppNav />
-                <main className="flex-1">{children}</main>
+                <main className="flex-1 pt-12">{children}</main>
               </AppInit>
             </IntlProvider>
           </ThemeProvider>

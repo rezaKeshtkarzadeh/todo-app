@@ -36,7 +36,14 @@
     "taskTitle": "Task Title",
     "noTasks": "No tasks yet",
     "markComplete": "Mark Complete",
-    "markIncomplete": "Mark Incomplete"
+    "markIncomplete": "Mark Incomplete",
+    "titleRequired": "Task title is required",
+    "titleTooLong": "Task title is too long (max 200 characters)",
+    "confirmDelete": "Delete Task",
+    "deleteDescription": "Are you sure you want to delete \"{{title}}\"? This action cannot be undone.",
+    "editTask": "Edit Task",
+    "editDescription": "Update the task title",
+    "loadError": "Failed to load tasks"
   },
   "profile": {
     "title": "Profile",
@@ -51,7 +58,9 @@
     "language": "Language",
     "light": "Light",
     "dark": "Dark",
-    "system": "System"
+    "system": "System",
+    "english": "English",
+    "persian": "Persian"
   },
   "security": {
     "title": "Security",
