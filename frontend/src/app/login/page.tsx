@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { PhoneForm } from "@/components/auth/PhoneForm";
@@ -16,6 +17,7 @@ import { AlertCircle } from "lucide-react";
 export default function LoginPage() {
   const t = useTranslations();
   const dispatch = useAppDispatch();
+  const router = useRouter();
 
   const { isAuthenticated, status, error } = useAppSelector(
     (state) => state.auth
@@ -25,9 +27,10 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      window.location.href = "/tasks";
+      router.push("/tasks");
+      router.refresh();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, router]);
 
   useEffect(() => {
     if (error?.code === "AUTH_OTP_MAX_ATTEMPTS") {
