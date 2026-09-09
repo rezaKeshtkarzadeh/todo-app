@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AvatarUploader } from "@/components/profile/AvatarUploader";
+import { PhoneChangeWizard } from "@/components/profile/PhoneChangeWizard";
 import { Separator } from "@/components/ui/separator";
 
 export function ProfileContent() {
@@ -26,9 +27,7 @@ export function ProfileContent() {
           <CardTitle>{t("profile.phoneNumber")}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground text-center py-8">
-            {t("profile.changePhone")} - Coming in Phase 26
-          </p>
+          <PhoneChangeWizard />
         </CardContent>
       </Card>
     </div>

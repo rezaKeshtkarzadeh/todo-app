@@ -11,7 +11,13 @@
     "close": "Close",
     "otpDebug": "OTP (dev): {{code}}",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "validationError": "Validation error",
+    "rateLimited": "Too many requests. Please wait.",
+    "notFound": "Not found",
+    "internalError": "Internal server error",
+    "networkError": "Network error",
+    "unknownError": "An unknown error occurred"
   },
   "auth": {
     "phoneNumber": "Phone Number",
@@ -28,7 +34,15 @@
     "phoneTooShort": "Phone number is too short",
     "phoneTooLong": "Phone number is too long",
     "otpLength": "OTP must be 4 digits",
-    "otpDigits": "OTP must contain only digits"
+    "otpDigits": "OTP must contain only digits",
+    "unauthenticated": "You are not authenticated. Please sign in.",
+    "sessionRevoked": "Your session has been revoked. Please sign in again.",
+    "refreshFailed": "Failed to refresh session. Please sign in again.",
+    "refreshTokenReused": "Security alert: Token reuse detected. Please sign in again.",
+    "csrfMissing": "CSRF token missing. Please refresh the page.",
+    "csrfInvalid": "CSRF token invalid. Please refresh the page.",
+    "deviceIdMissing": "Device ID missing. Please refresh the page.",
+    "deviceIdInvalid": "Invalid Device ID. Please refresh the page."
   },
   "tasks": {
     "title": "Tasks",
@@ -55,7 +69,25 @@
     "changePhone": "Change Phone Number",
     "avatarInvalidType": "Invalid file type. Only JPEG, PNG, and WebP are allowed.",
     "avatarTooLarge": "File too large. Maximum size is 5 MB.",
-    "uploading": "Uploading... {{progress}}%"
+    "uploading": "Uploading... {{progress}}%",
+    "changePhoneWizard": "Change Phone Number",
+    "step1Label": "Request OTP",
+    "step2Label": "Verify Current",
+    "step3Label": "New Number",
+    "step4Label": "Verify New",
+    "step1Description": "We'll send a verification code to your current phone number.",
+    "step2Description": "Enter the 4-digit code sent to your current phone.",
+    "step3Description": "Enter your new phone number to receive a verification code.",
+    "step4Description": "Enter the 4-digit code sent to {{phone}}.",
+    "requestCurrentOtp": "Send Code to Current Phone",
+    "requestNewOtp": "Send Code to New Phone",
+    "newPhoneNumber": "New Phone Number",
+    "cancelWizard": "Cancel Phone Change",
+    "cancelWizardDescription": "Are you sure you want to cancel? Your progress will be lost.",
+    "tokenExpired": "The phone change session has expired. Please start over.",
+    "phoneAlreadyInUse": "This phone number is already in use.",
+    "phoneSameAsCurrent": "The new phone number cannot be the same as your current number.",
+    "phoneChangeTokenInvalid": "Phone change session expired. Please start over."
   },
   "settings": {
     "title": "Settings",
@@ -76,6 +108,23 @@
     "revokeDeviceSessions": "Revoke All Device Sessions",
     "currentSession": "Current Session",
     "globalLogout": "Global Logout",
-    "globalLogoutDescription": "This will log you out of all devices, including this one."
+    "globalLogoutDescription": "This will log you out of all devices, including this one.",
+    "created": "Created",
+    "lastActivity": "Last activity",
+    "expires": "Expires",
+    "unnamedDevice": "Unnamed Device",
+    "revokeSessionConfirm": "Revoke Session",
+    "revokeSessionDescription": "Are you sure you want to revoke this session? You will be logged out from this device.",
+    "revokeAllDeviceSessions": "Revoke All Sessions on This Device",
+    "revokeAllDeviceSessionsConfirm": "Revoke All Sessions on This Device",
+    "revokeAllDeviceSessionsDescription": "This will revoke all sessions on this device. You will be logged out from this device.",
+    "revokeAllSessionsConfirm": "Global Logout",
+    "revokeAllSessionsDescription": "This will revoke ALL sessions on ALL devices, including this one. You will be logged out everywhere.",
+    "globalLogoutConfirm": "Global Logout",
+    "globalLogoutDescription": "This will log you out of all devices, including this one.",
+    "noDevices": "No devices found",
+    "loadError": "Failed to load devices",
+    "deviceNotFound": "Device not found",
+    "sessionNotFound": "Session not found"
   }
 }

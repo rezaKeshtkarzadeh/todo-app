@@ -11,7 +11,13 @@
     "close": "بستن",
     "otpDebug": "کد یکبار مصرف (تست): {{code}}",
     "openMenu": "باز کردن منو",
-    "closeMenu": "بستن منو"
+    "closeMenu": "بستن منو",
+    "validationError": "خطای اعتبارسنجی",
+    "rateLimited": "بازدیدهای زیاد. لطفاً صبر کنید.",
+    "notFound": "یافت نشد",
+    "internalError": "خطای داخلی سرور",
+    "networkError": "خطای شبکه",
+    "unknownError": "خطای ناشناخته رخ داد"
   },
   "auth": {
     "phoneNumber": "شماره تلفن",
@@ -28,7 +34,15 @@
     "phoneTooShort": "شماره تلفن خیلی کوتاه است",
     "phoneTooLong": "شماره تلفن خیلی طولانی است",
     "otpLength": "کد یکبار مصرف باید ۴ رقم باشد",
-    "otpDigits": "کد یکبار مصرف باید فقط شامل رقم باشد"
+    "otpDigits": "کد یکبار مصرف باید فقط شامل رقم باشد",
+    "unauthenticated": "شما احراز هویت نشده‌اید. لطفاً وارد شوید.",
+    "sessionRevoked": "نشست شما انقضا یافته است. لطفاً مجدداً وارد شوید.",
+    "refreshFailed": "به‌روزرسانی نشست ناموفق بود. لطفاً مجدداً وارد شوید.",
+    "refreshTokenReused": "هشدار امنیتی: استفاده مجدد از توکن تشخیص داده شد. لطفاً مجدداً وارد شوید.",
+    "csrfMissing": "توکن CSRF یافت نشد. لطفاً صفحه را بازسازی کنید.",
+    "csrfInvalid": "توکن CSRF نامعتبر است. لطفاً صفحه را بازسازی کنید.",
+    "deviceIdMissing": "شناسه دستگاه یافت نشد. لطفاً صفحه را بازسازی کنید.",
+    "deviceIdInvalid": "شناسه دستگاه نامعتبر است. لطفاً صفحه را بازسازی کنید."
   },
   "tasks": {
     "title": "کارها",
@@ -55,7 +69,25 @@
     "changePhone": "تغییر شماره تلفن",
     "avatarInvalidType": "نوع فایل نامعتبر. فقط JPEG، PNG و WebP مجاز هستند.",
     "avatarTooLarge": "فایل خیلی بزرگ است. حداکثر اندازه ۵ مگابایت.",
-    "uploading": "در حال آپلود... {{progress}}%"
+    "uploading": "در حال آپلود... {{progress}}%",
+    "changePhoneWizard": "تغییر شماره تلفن",
+    "step1Label": "درخواست کد",
+    "step2Label": "تایید فعلی",
+    "step3Label": "شماره جدید",
+    "step4Label": "تایید جدید",
+    "step1Description": "ما یک کد تایید به شماره تلفن فعلی شما ارسال می‌کنیم.",
+    "step2Description": "کد ۴ رقمی ارسال شده به شماره تلفن فعلی خود را وارد کنید.",
+    "step3Description": "شماره تلفن جدید خود را برای دریافت کد تایید وارد کنید.",
+    "step4Description": "کد ۴ رقمی ارسال شده به {{phone}} را وارد کنید.",
+    "requestCurrentOtp": "ارسال کد به شماره فعلی",
+    "requestNewOtp": "ارسال کد به شماره جدید",
+    "newPhoneNumber": "شماره تلفن جدید",
+    "cancelWizard": "انصراف از تغییر تلفن",
+    "cancelWizardDescription": "آیا مطمئن هستید که می‌خواهید انصراف دهید؟ پیشرفت شما از بین خواهد رفت.",
+    "tokenExpired": "نشست تغییر شماره تلفن منقضی شده است. لطفاً از đầu شروع کنید.",
+    "phoneAlreadyInUse": "این شماره تلفن قبلاً استفاده شده است.",
+    "phoneSameAsCurrent": "شماره تلفن جدید نمی‌تواند با شماره فعلی یکسان باشد.",
+    "phoneChangeTokenInvalid": "نشست تغییر شماره تلفن منقضی شده است. لطفاً از đầu شروع کنید."
   },
   "settings": {
     "title": "تنظیمات",
@@ -76,6 +108,23 @@
     "revokeDeviceSessions": "انقضای نشست‌های دستگاه",
     "currentSession": "نشست جاری",
     "globalLogout": "خروج کامل",
-    "globalLogoutDescription": "این کار شما را از تمام دستگاه‌ها، از جمله این دستگاه، خارج می‌کند."
+    "globalLogoutDescription": "این کار شما را از تمام دستگاه‌ها، از جمله این دستگاه، خارج می‌کند.",
+    "created": "تاریخ ایجاد",
+    "lastActivity": "آخرین فعالیت",
+    "expires": "انقضا",
+    "unnamedDevice": "دستگاه ناشناس",
+    "revokeSessionConfirm": "انقضای نشست",
+    "revokeSessionDescription": "آیا مطمئن هستید که می‌خواهید این نشست را انقضا دهید؟ شما از این دستگاه خارج خواهید شد.",
+    "revokeAllDeviceSessions": "انقضای تمام نشست‌های این دستگاه",
+    "revokeAllDeviceSessionsConfirm": "انقضای تمام نشست‌های این دستگاه",
+    "revokeAllDeviceSessionsDescription": "این کار تمام نشست‌های این دستگاه را انقضا می‌دهد. شما از این دستگاه خارج خواهید شد.",
+    "revokeAllSessionsConfirm": "خروج کامل",
+    "revokeAllSessionsDescription": "این کار تمام نشست‌ها را روی تمام دستگاه‌ها، از جمله این دستگاه، انقضا می‌دهد. شما از همه جا خارج خواهید شد.",
+    "globalLogoutConfirm": "خروج کامل",
+    "globalLogoutDescription": "این کار شما را از تمام دستگاه‌ها، از جمله این دستگاه، خارج می‌کند.",
+    "noDevices": "دستگاهی یافت نشد",
+    "loadError": "بارگذاری دستگاه‌ها ناموفق بود",
+    "deviceNotFound": "دستگاه یافت نشد",
+    "sessionNotFound": "نشست یافت نشد"
   }
 }
