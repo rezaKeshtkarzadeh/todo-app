@@ -166,6 +166,7 @@ Detailed project architecture, development rules, and security requirements are 
 
 ```text
 AGENTS.md
+PHASES.md
 backend/AGENTS.md
 frontend/AGENTS.md
 ```
